@@ -562,6 +562,22 @@ func (b *netPolBuilder) create() ([]*netv1.NetworkPolicy, error) { // nolint:gol
 					},
 				},
 				Egress: []netv1.NetworkPolicyEgressRule{
+					{ // Allow access to IPV4 Public addresses only
+						To: []netv1.NetworkPolicyPeer{
+							{
+								PodSelector:       nil,
+								NamespaceSelector: nil,
+								IPBlock: &netv1.IPBlock{
+									CIDR: "0.0.0.0/0",
+									Except: []string{
+										"10.0.0.0/8",
+										"192.168.0.0/16",
+										"172.16.0.0/12",
+									},
+								},
+							},
+						},
+					},
 					{ // Allow Network Connections to same Namespace
 						To: []netv1.NetworkPolicyPeer{
 							{
@@ -594,22 +610,6 @@ func (b *netPolBuilder) create() ([]*netv1.NetworkPolicy, error) { // nolint:gol
 								NamespaceSelector: &metav1.LabelSelector{
 									MatchLabels: map[string]string{
 										"kubernetes.io/metadata.name": "kube-system",
-									},
-								},
-							},
-						},
-					},
-					{ // Allow access to IPV4 Public addresses only
-						To: []netv1.NetworkPolicyPeer{
-							{
-								PodSelector:       nil,
-								NamespaceSelector: nil,
-								IPBlock: &netv1.IPBlock{
-									CIDR: "0.0.0.0/0",
-									Except: []string{
-										"10.0.0.0/8",
-										"192.168.0.0/16",
-										"172.16.0.0/12",
 									},
 								},
 							},
